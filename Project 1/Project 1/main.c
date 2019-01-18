@@ -7,12 +7,19 @@
 
 #include <avr/io.h>
 
-
 int main(void)
 {
     /* Replace with your application code */
-    while (1) 
-    {
-    }
+//     while (1) 
+//     {
+//     }
+	DDRB = 1;
+	for( ; ;) {
+		PORTB = 1;  /* LED ON*/
+		wait_half_sec();
+		PORTB = 0;  /* LED OFF */
+		wait_half_sec();
+	}
+
 }
 

@@ -18,3 +18,10 @@ wait_avr(unsigned short msec)
 	}
 	TCCR0 = 0;
 }
+
+void wait_half_sec() {
+	int i, n = 1000;
+	for(i=0; i < n; ++i) {
+		/* nothing */
+	}
+}
