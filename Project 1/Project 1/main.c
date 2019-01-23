@@ -6,6 +6,8 @@
  */ 
 
 #include <avr/io.h>
+#include <stdio.h>
+#include "avr.h"
 
 int main(void)
 {
@@ -13,12 +15,15 @@ int main(void)
 //     while (1) 
 //     {
 //     }
-	DDRB = 1;
+	DDRB = 0x01;
 	for( ; ;) {
-		PORTB = 1;  /* LED ON*/
-		wait_half_sec();
-		PORTB = 0;  /* LED OFF */
-		wait_half_sec();
+		if (!GET_BIT(PINB,1))
+		{
+			SET_BIT(PORTB,0);
+			wait_half_sec();
+			CLR_BIT(PORTB,0);
+			wait_half_sec();
+		}
 	}
 
 }
