@@ -20,9 +20,11 @@ int main(void)
 		if (!GET_BIT(PINB,1))
 		{
 			SET_BIT(PORTB,0);
-			wait_half_sec();
+			wait_avr(500);
+			//wait_half_sec();
 			CLR_BIT(PORTB,0);
-			wait_half_sec();
+			//wait_half_sec();
+			wait_avr(500);
 		}
 	}
 

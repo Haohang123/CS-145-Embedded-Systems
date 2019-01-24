@@ -18,6 +18,6 @@
 #define CLR_BIT(p,i) ((p) &= ~(1 << (i)))
 #define GET_BIT(p,i) ((p) &   (1 << (i)))
 
-void avr_wait(unsigned short msec);
+void wait_avr(unsigned short msec);
 
 #endif /* _AVR_H */
