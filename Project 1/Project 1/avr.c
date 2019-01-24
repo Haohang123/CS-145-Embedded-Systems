@@ -20,8 +20,10 @@ wait_avr(unsigned short msec)
 }
 
 void wait_half_sec() {
-	int i, n = 1000;
+	volatile int i;
+	unsigned long n = 50000;
 	for(i=0; i < n; ++i) {
-		/* nothing */
+		/* nothing 
 	}
 }
+
