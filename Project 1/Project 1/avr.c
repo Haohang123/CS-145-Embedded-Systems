@@ -2,7 +2,7 @@
  * avr.c
  *
  * Created: 1/16/2019 5:55:45 PM
- *  Author: Jackson Tsoi
+ *  Author: Jackson Tsoi & David Pham
  */ 
 
 #include "avr.h"
