@@ -1,7 +1,7 @@
 /*
  * avr.h
  *
- * Created: 1/16/2019 5:54:56 PM
+ * Created: 1/30/2019 12:35:29 PM
  *  Author: Jackson Tsoi
  */ 
 
@@ -17,6 +17,12 @@
 #define SET_BIT(p,i) ((p) |=  (1 << (i)))
 #define CLR_BIT(p,i) ((p) &= ~(1 << (i)))
 #define GET_BIT(p,i) ((p) &   (1 << (i)))
+
+#define WDR() asm volatile("wdr"::)
+#define NOP() asm volatile("nop"::)
+#define RST() for(;;);
+
+void avr_init(void);
 
 void avr_wait(unsigned short msec);
 
