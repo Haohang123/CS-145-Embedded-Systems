@@ -10,33 +10,51 @@
 #include "avr.h"
 #include "lcd.h"
 
+struct datetime {
+	int year;
+	int month;
+	int day;
+	int hour;
+	int minute;
+	int second;
+	int subsecond;	
+} time;
+
+void increment_time() {
+	time.subsecond ++;
+	if (time.subsecond == 10) {
+		time.subsecond = 0;
+		time.second ++;
+		
+		if (time.second == 60) {
+			time.second = 0;
+			time.minute ++;
+			
+			if (time.minute == 60) {
+				time.minute = 0;
+				time.hour ++;
+				
+				if (time.hour == 24) {
+					time.hour = 0;
+					time.day ++;
+					
+					if (time.day ) {
+					}
+				}
+			}
+		}
+	}
+}
 
 int is_pressed(int row, int col) {
-	// all row and col is NC
 	DDRC = 0;
 	PORTC = 0;
+	
+	SET_BIT(DDRC, row);
+	SET_BIT(PORTC, col + 4);
 	avr_wait(1);
 	
-	// set all col to strong 1
-	DDRC = 0x01;
-	SET_BIT(PORTC, 4);
-	SET_BIT(PORTC, 5);
-	SET_BIT(PORTC, 6);
-	SET_BIT(PORTC, 7);
-	avr_wait(1);
-	
-	// set col to strong 0
-	DDRC = 0x01;
-	CLR_BIT(PORTC, col + 4);
-	avr_wait(1);
-	
-	// set row to weak 1
-	DDRC = 0;
-	SET_BIT(PORTC, row);
-	avr_wait(1);
-	
-	
-	if (GET_BIT(PINC,row)) {
+	if (GET_BIT(PINC,col + 4)) {
 		return 0;
 	}
 	
@@ -57,27 +75,23 @@ int get_key() {
 
 void blinkNtimes(int times) {
 	for(int i = 0; i < times; ++i) {
-		CLR_BIT(PORTB,0);
-		avr_wait(500);
-		SET_BIT(PORTB,0);
-		avr_wait(500);
+		blink();
 	}
 }
 
+void blink() {
+	SET_BIT(PORTB,0);
+	avr_wait(500);
+	CLR_BIT(PORTB,0);
+	avr_wait(500);
+}
 int main(void)
 {
 	DDRB = 0x01;
     while (1) 
     {
 		int key = get_key();
-		if (key == 0) {
-			SET_BIT(PORTB, 0);
-		}
-		else {
-			blinkNtimes(key);
-		}
-		//CLR_BIT(PORTB,0);
-		avr_wait(2000);
+		blinkNtimes(key);
     }
 }
 
