@@ -54,12 +54,12 @@ void increment_time() {
 		time.hour = 0;
 		time.day ++;
 	}
-	if ( time.day >= days_in_month[time.month] ) {
+	if ( time.day >= days_in_month[time.month]) {
 		if (is_leap_year(time.year) && time.month == 1) {
-			if (time.day == 28) {
+			if (time.day == 27) {
 				return;
 			}
-			else {
+			else if (time.day > 28) {
 				time.day = 0;
 				time.month ++;
 			}
@@ -126,12 +126,12 @@ void print_time() {
 		edit_state = "E";
 		edit_position_char = edit_position + 48 + 1;
 	}
-	sprintf(buf, "%02d/%02d/%04d  %s %c", time.month, time.day, time.year, edit_state, edit_position_char);
+	sprintf(buf, "%02d/%02d/%04d  %s %c", time.month + 1, time.day + 1, time.year, edit_state, edit_position_char);
 	lcd_puts2(buf);
 	
 	lcd_pos(1,0);
 	if (military_time) {
-		sprintf(buf, "%02d:%02d:%02d", time.hour, time.minute, time.second);
+		sprintf(buf, "%02d:%02d:%02d  %04d", time.hour, time.minute, time.second, time_being_set);
 	}
 	else{
 		char timezone = "";
@@ -141,7 +141,7 @@ void print_time() {
 		else {
 			timezone = "AM";
 		}
-		sprintf(buf, "%02d:%02d:%02d %s", time.hour % 12, time.minute, time.second, timezone);
+		sprintf(buf, "%02d:%02d:%02d %s %04d", time.hour % 12, time.minute, time.second, timezone, time_being_set);
 	}
 	lcd_puts2(buf);
 	
@@ -149,32 +149,48 @@ void print_time() {
 
 void add_or_sub_time(int mode) {
 	if (edit_position == 0){
-		time.month += mode;
+		if (time.month + mode >= 0){
+			time.month += mode;
+		}
 	}
 	else if (edit_position == 1) {
-		time.day += mode;
+		if (time.day + mode >= 0){
+			time.day += mode;
+		}
 	}
 	else if (edit_position == 2) {
-		time.year += mode;
+		if (time.year + mode >= 0){
+			time.year += mode;
+		}
 	}
 	else if (edit_position == 3) {
-		time.hour += mode;
+		if (time.hour + mode >= 0){
+			time.hour += mode;
+		}
 	}
 	else if (edit_position == 4) {
-		time.minute += mode;
+		if (time.minute + mode >= 0){
+			time.minute += mode;
+		}
 	}
 	else if (edit_position == 5) {
-		time.second += mode;
+		if (time.second + mode >= 0){
+			time.second += mode;
+		}
 	}
 					
 }
 
 void set_time() {
 	if (edit_position == 0){
-		time.month = time_being_set;
+		if (time_being_set > 0) {
+			time.month = time_being_set - 1;
+		}
 	}
 	else if (edit_position == 1) {
-		time.day = time_being_set;
+		if (time_being_set > 0) {
+			time.day = time_being_set - 1;
+		}
 	}
 	else if (edit_position == 2) {
 		time.year = time_being_set;
@@ -203,46 +219,66 @@ int main(void)
     while (1) 
     {
 		int key = get_key() - 1;
-		
-		if (keypad[key] == 'C'){
+		if (key == -1) {
+			// Do Nothing
+		}
+		else if (keypad[key] == 'C'){
 			military_time = (military_time + 1) % 2;
 		}
 		else if (keypad[key] == 'D') {
 			edit_time = (edit_time + 1) % 2;
 			is_setting_time = 0;
+			time_being_set = 0;
 			time_being_set_position = 0;
 		}
-		else if (keypad[key] == '#' && edit_time) {
-			if (edit_position < 5) {
-				edit_position ++;
-			}
-		}
-		else if (keypad[key] == '*' && edit_time) {
-			if (edit_position > 0) {
-				edit_position --;
-			}
-		}
-		else if (keypad[key] == 'A' && edit_time) {
-			add_or_sub_time(1);
-		}
-		else if (keypad[key] == 'B' && edit_time) {
-			add_or_sub_time(-1);
-		}
 		else if (edit_time) {
-			is_setting_time = 1;
-			time_being_set_position ++;
-			int num = keypad[key];
-			time_being_set = time_being_set * 10 + num;
-			if (edit_position == 2 && time_being_set_position == 4) { // edit position is on year
-				set_time();
-				clear_set_time();
+			if (keypad[key] == '#') {
+				if (edit_position < 5) {
+					edit_position ++;
+				}
 			}
-			else if (edit_position != 2 && time_being_set_position == 2) { // edit position is on everything else other than year
-				set_time();
-				clear_set_time();
+			else if (keypad[key] == '*') {
+				if (edit_position > 0) {
+					edit_position --;
+				}
 			}
-			
+			else if (keypad[key] == 'A') {
+				add_or_sub_time(1);
+			}
+			else if (keypad[key] == 'B') {
+				add_or_sub_time(-1);
+			}
+			else {
+				is_setting_time = 1;
+				time_being_set_position ++;
+				int num = keypad[key] - 48;
+				time_being_set = time_being_set * 10 + num;
+				if (edit_position == 2 && time_being_set_position == 4) { // edit position is on year
+					set_time();
+					clear_set_time();
+				}
+				else if (edit_position != 2 && time_being_set_position == 2) { // edit position is on everything else other than year
+					set_time();
+					clear_set_time();
+				}
+			}
 		}
+
+		//else if (edit_time) {
+			//is_setting_time = 1;
+			//time_being_set_position ++;
+			//int num = keypad[key];
+			//time_being_set = time_being_set * 10 + num;
+			//if (edit_position == 2 && time_being_set_position == 4) { // edit position is on year
+			//set_time();
+			//clear_set_time();
+			//}
+			//else if (edit_position != 2 && time_being_set_position == 2) { // edit position is on everything else other than year
+			//set_time();
+			//clear_set_time();
+			//}
+			//
+		//}
 		print_time();
 		increment_time();
 		avr_wait(100);
