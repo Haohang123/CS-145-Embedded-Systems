@@ -31,6 +31,10 @@ int days_in_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 int edit_time = 0;
 int edit_position = 0;
 int military_time = 0;
+int is_setting_time = 0;
+int time_being_set = 0;
+int time_being_set_position = 0;
+
 
 void increment_time() {
 	time.subsecond ++;
@@ -165,6 +169,32 @@ void add_or_sub_time(int mode) {
 					
 }
 
+void set_time() {
+	if (edit_position == 0){
+		time.month = time_being_set;
+	}
+	else if (edit_position == 1) {
+		time.day = time_being_set;
+	}
+	else if (edit_position == 2) {
+		time.year = time_being_set;
+	}
+	else if (edit_position == 3) {
+		time.hour = time_being_set;
+	}
+	else if (edit_position == 4) {
+		time.minute = time_being_set;
+	}
+	else if (edit_position == 5) {
+		time.second = time_being_set;
+	}	
+}
+
+void clear_set_time() {
+	time_being_set = 0;
+	time_being_set_position = 0;
+	is_setting_time = 0;
+}
 
 int main(void)
 {
@@ -179,6 +209,8 @@ int main(void)
 		}
 		else if (keypad[key] == 'D') {
 			edit_time = (edit_time + 1) % 2;
+			is_setting_time = 0;
+			time_being_set_position = 0;
 		}
 		else if (keypad[key] == '#' && edit_time) {
 			if (edit_position < 5) {
@@ -196,7 +228,21 @@ int main(void)
 		else if (keypad[key] == 'B' && edit_time) {
 			add_or_sub_time(-1);
 		}
-		
+		else if (edit_time) {
+			is_setting_time = 1;
+			time_being_set_position ++;
+			int num = keypad[key];
+			time_being_set = time_being_set * 10 + num;
+			if (edit_position == 2 && time_being_set_position == 4) { // edit position is on year
+				set_time();
+				clear_set_time();
+			}
+			else if (edit_position != 2 && time_being_set_position == 2) { // edit position is on everything else other than year
+				set_time();
+				clear_set_time();
+			}
+			
+		}
 		print_time();
 		increment_time();
 		avr_wait(100);
