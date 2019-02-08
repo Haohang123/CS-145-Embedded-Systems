@@ -55,7 +55,7 @@ void increment_time() {
 		time.day ++;
 	}
 	if ( time.day >= days_in_month[time.month]) {
-		if (is_leap_year(time.year) && time.month == 1) {
+		if (time.year % 4 == 0 && time.month == 1 && (time.year % 100 != 0 || time.year % 400 == 0 ) ) {
 			if (time.day == 27) {
 				return;
 			}
@@ -130,18 +130,39 @@ void print_time() {
 	lcd_puts2(buf);
 	
 	lcd_pos(1,0);
+	int hour = time.hour;
 	if (military_time) {
-		sprintf(buf, "%02d:%02d:%02d  %04d", time.hour, time.minute, time.second, time_being_set);
+		if (edit_time == 1) {
+			sprintf(buf, "%02d:%02d:%02d %04d", hour, time.minute, time.second, time_being_set);
+		}
+		else {
+			sprintf(buf, "%02d:%02d:%02d", hour, time.minute, time.second);
+		}
 	}
 	else{
+		int am_pm_hour = hour;
+		if (hour % 12 == 0) {
+			am_pm_hour = 12;
+		}
+		else {
+			am_pm_hour %= 12;
+		}
+		
 		char timezone = "";
-		if (time.hour >= 12) {
+		if (hour >= 12) {
 			timezone = "PM";
 		} 
 		else {
 			timezone = "AM";
+			
 		}
-		sprintf(buf, "%02d:%02d:%02d %s %04d", time.hour % 12, time.minute, time.second, timezone, time_being_set);
+		if (edit_time == 1) {
+			sprintf(buf, "%02d:%02d:%02d %s %04d", am_pm_hour , time.minute, time.second, timezone, time_being_set);
+		}
+		else {
+			sprintf(buf, "%02d:%02d:%02d %s", am_pm_hour , time.minute, time.second, timezone);
+		}
+		
 	}
 	lcd_puts2(buf);
 	
@@ -263,22 +284,6 @@ int main(void)
 				}
 			}
 		}
-
-		//else if (edit_time) {
-			//is_setting_time = 1;
-			//time_being_set_position ++;
-			//int num = keypad[key];
-			//time_being_set = time_being_set * 10 + num;
-			//if (edit_position == 2 && time_being_set_position == 4) { // edit position is on year
-			//set_time();
-			//clear_set_time();
-			//}
-			//else if (edit_position != 2 && time_being_set_position == 2) { // edit position is on everything else other than year
-			//set_time();
-			//clear_set_time();
-			//}
-			//
-		//}
 		print_time();
 		increment_time();
 		avr_wait(100);
