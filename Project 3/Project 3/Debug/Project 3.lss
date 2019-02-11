@@ -1,0 +1,457 @@
+
+Project 3.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000228  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000012  00800060  00000228  0000029c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000030  00000000  00000000  000002ae  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000002e0  2**2
+                  CONTENTS, READONLY
+  4 .debug_aranges 000000c0  00000000  00000000  0000031c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   00000cc4  00000000  00000000  000003dc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 00000841  00000000  00000000  000010a0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   00000652  00000000  00000000  000018e1  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000180  00000000  00000000  00001f34  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    000003dc  00000000  00000000  000020b4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    0000050a  00000000  00000000  00002490  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 000000a8  00000000  00000000  0000299a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+   8:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+   c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  10:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  14:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  18:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  1c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  20:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  24:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  28:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  2c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  30:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  34:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  38:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  3c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  40:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  44:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  48:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  4c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  50:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d8 e0       	ldi	r29, 0x08	; 8
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+
+00000060 <__do_copy_data>:
+  60:	10 e0       	ldi	r17, 0x00	; 0
+  62:	a0 e6       	ldi	r26, 0x60	; 96
+  64:	b0 e0       	ldi	r27, 0x00	; 0
+  66:	e8 e2       	ldi	r30, 0x28	; 40
+  68:	f2 e0       	ldi	r31, 0x02	; 2
+  6a:	02 c0       	rjmp	.+4      	; 0x70 <__do_copy_data+0x10>
+  6c:	05 90       	lpm	r0, Z+
+  6e:	0d 92       	st	X+, r0
+  70:	a2 37       	cpi	r26, 0x72	; 114
+  72:	b1 07       	cpc	r27, r17
+  74:	d9 f7       	brne	.-10     	; 0x6c <__do_copy_data+0xc>
+  76:	0e 94 f3 00 	call	0x1e6	; 0x1e6 <main>
+  7a:	0c 94 12 01 	jmp	0x224	; 0x224 <_exit>
+
+0000007e <__bad_interrupt>:
+  7e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+00000082 <avr_init>:
+#include "avr.h"
+
+void
+avr_init(void)
+{
+	WDTCR = 15;
+  82:	8f e0       	ldi	r24, 0x0F	; 15
+  84:	81 bd       	out	0x21, r24	; 33
+  86:	08 95       	ret
+
+00000088 <avr_wait>:
+}
+
+void
+avr_wait(unsigned short msec)
+{
+  88:	9c 01       	movw	r18, r24
+	TCCR0 = 3;
+  8a:	83 e0       	ldi	r24, 0x03	; 3
+  8c:	83 bf       	out	0x33, r24	; 51
+	while (msec--) {
+		TCNT0 = (unsigned char)(256 - (XTAL_FRQ / 64) * 0.001);
+  8e:	83 e8       	ldi	r24, 0x83	; 131
+
+void
+avr_wait(unsigned short msec)
+{
+	TCCR0 = 3;
+	while (msec--) {
+  90:	08 c0       	rjmp	.+16     	; 0xa2 <avr_wait+0x1a>
+		TCNT0 = (unsigned char)(256 - (XTAL_FRQ / 64) * 0.001);
+  92:	82 bf       	out	0x32, r24	; 50
+		SET_BIT(TIFR, TOV0);
+  94:	98 b7       	in	r25, 0x38	; 56
+  96:	91 60       	ori	r25, 0x01	; 1
+  98:	98 bf       	out	0x38, r25	; 56
+		WDR();
+  9a:	a8 95       	wdr
+		while (!GET_BIT(TIFR, TOV0));
+  9c:	08 b6       	in	r0, 0x38	; 56
+  9e:	00 fe       	sbrs	r0, 0
+  a0:	fd cf       	rjmp	.-6      	; 0x9c <avr_wait+0x14>
+
+void
+avr_wait(unsigned short msec)
+{
+	TCCR0 = 3;
+	while (msec--) {
+  a2:	21 50       	subi	r18, 0x01	; 1
+  a4:	31 09       	sbc	r19, r1
+  a6:	a8 f7       	brcc	.-22     	; 0x92 <avr_wait+0xa>
+		TCNT0 = (unsigned char)(256 - (XTAL_FRQ / 64) * 0.001);
+		SET_BIT(TIFR, TOV0);
+		WDR();
+		while (!GET_BIT(TIFR, TOV0));
+	}
+	TCCR0 = 0;
+  a8:	13 be       	out	0x33, r1	; 51
+  aa:	08 95       	ret
+
+000000ac <output>:
+}
+
+static void
+output(unsigned char d, unsigned char rs)
+{
+	if (rs) SET_BIT(PORT, RS_PIN); else CLR_BIT(PORT, RS_PIN);
+  ac:	66 23       	and	r22, r22
+  ae:	11 f0       	breq	.+4      	; 0xb4 <output+0x8>
+  b0:	c0 9a       	sbi	0x18, 0	; 24
+  b2:	01 c0       	rjmp	.+2      	; 0xb6 <output+0xa>
+  b4:	c0 98       	cbi	0x18, 0	; 24
+	CLR_BIT(PORT, RW_PIN);
+  b6:	c1 98       	cbi	0x18, 1	; 24
+#define EN_PIN 2
+
+static inline void
+set_data(unsigned char x)
+{
+	PORTD = x;
+  b8:	82 bb       	out	0x12, r24	; 18
+	DDRD = 0xff;
+  ba:	8f ef       	ldi	r24, 0xFF	; 255
+  bc:	81 bb       	out	0x11, r24	; 17
+output(unsigned char d, unsigned char rs)
+{
+	if (rs) SET_BIT(PORT, RS_PIN); else CLR_BIT(PORT, RS_PIN);
+	CLR_BIT(PORT, RW_PIN);
+	set_data(d);
+	SET_BIT(PORT, EN_PIN);
+  be:	c2 9a       	sbi	0x18, 2	; 24
+}
+
+static inline void
+sleep_700ns(void)
+{
+	NOP();
+  c0:	00 00       	nop
+	NOP();
+  c2:	00 00       	nop
+	NOP();
+  c4:	00 00       	nop
+	if (rs) SET_BIT(PORT, RS_PIN); else CLR_BIT(PORT, RS_PIN);
+	CLR_BIT(PORT, RW_PIN);
+	set_data(d);
+	SET_BIT(PORT, EN_PIN);
+	sleep_700ns();
+	CLR_BIT(PORT, EN_PIN);
+  c6:	c2 98       	cbi	0x18, 2	; 24
+  c8:	08 95       	ret
+
+000000ca <write>:
+
+static unsigned char
+input(unsigned char rs)
+{
+	unsigned char d;
+	if (rs) SET_BIT(PORT, RS_PIN); else CLR_BIT(PORT, RS_PIN);
+  ca:	c0 98       	cbi	0x18, 0	; 24
+	SET_BIT(PORT, RW_PIN);
+  cc:	c1 9a       	sbi	0x18, 1	; 24
+}
+
+static inline unsigned char
+get_data(void)
+{
+	DDRD = 0x00;
+  ce:	11 ba       	out	0x11, r1	; 17
+	return PIND;
+  d0:	90 b3       	in	r25, 0x10	; 16
+{
+	unsigned char d;
+	if (rs) SET_BIT(PORT, RS_PIN); else CLR_BIT(PORT, RS_PIN);
+	SET_BIT(PORT, RW_PIN);
+	get_data();
+	SET_BIT(PORT, EN_PIN);
+  d2:	c2 9a       	sbi	0x18, 2	; 24
+}
+
+static inline void
+sleep_700ns(void)
+{
+	NOP();
+  d4:	00 00       	nop
+	NOP();
+  d6:	00 00       	nop
+	NOP();
+  d8:	00 00       	nop
+}
+
+static inline unsigned char
+get_data(void)
+{
+	DDRD = 0x00;
+  da:	11 ba       	out	0x11, r1	; 17
+	return PIND;
+  dc:	90 b3       	in	r25, 0x10	; 16
+	SET_BIT(PORT, RW_PIN);
+	get_data();
+	SET_BIT(PORT, EN_PIN);
+	sleep_700ns();
+	d = get_data();
+	CLR_BIT(PORT, EN_PIN);
+  de:	c2 98       	cbi	0x18, 2	; 24
+}
+
+static void
+write(unsigned char c, unsigned char rs)
+{
+	while (input(0) & 0x80);
+  e0:	99 23       	and	r25, r25
+  e2:	9c f3       	brlt	.-26     	; 0xca <write>
+	output(c, rs);
+  e4:	0e 94 56 00 	call	0xac	; 0xac <output>
+  e8:	08 95       	ret
+
+000000ea <lcd_init>:
+}
+
+void
+lcd_init(void)
+{
+	SET_BIT(DDR, RS_PIN);
+  ea:	b8 9a       	sbi	0x17, 0	; 23
+	SET_BIT(DDR, RW_PIN);
+  ec:	b9 9a       	sbi	0x17, 1	; 23
+	SET_BIT(DDR, EN_PIN);
+  ee:	ba 9a       	sbi	0x17, 2	; 23
+	avr_wait(16);
+  f0:	80 e1       	ldi	r24, 0x10	; 16
+  f2:	90 e0       	ldi	r25, 0x00	; 0
+  f4:	0e 94 44 00 	call	0x88	; 0x88 <avr_wait>
+	output(0x30, 0);
+  f8:	60 e0       	ldi	r22, 0x00	; 0
+  fa:	80 e3       	ldi	r24, 0x30	; 48
+  fc:	0e 94 56 00 	call	0xac	; 0xac <output>
+	avr_wait(5);
+ 100:	85 e0       	ldi	r24, 0x05	; 5
+ 102:	90 e0       	ldi	r25, 0x00	; 0
+ 104:	0e 94 44 00 	call	0x88	; 0x88 <avr_wait>
+	output(0x30, 0);
+ 108:	60 e0       	ldi	r22, 0x00	; 0
+ 10a:	80 e3       	ldi	r24, 0x30	; 48
+ 10c:	0e 94 56 00 	call	0xac	; 0xac <output>
+	avr_wait(1);
+ 110:	81 e0       	ldi	r24, 0x01	; 1
+ 112:	90 e0       	ldi	r25, 0x00	; 0
+ 114:	0e 94 44 00 	call	0x88	; 0x88 <avr_wait>
+	write(0x3c, 0);
+ 118:	60 e0       	ldi	r22, 0x00	; 0
+ 11a:	8c e3       	ldi	r24, 0x3C	; 60
+ 11c:	0e 94 65 00 	call	0xca	; 0xca <write>
+	write(0x0c, 0);
+ 120:	60 e0       	ldi	r22, 0x00	; 0
+ 122:	8c e0       	ldi	r24, 0x0C	; 12
+ 124:	0e 94 65 00 	call	0xca	; 0xca <write>
+	write(0x06, 0);
+ 128:	60 e0       	ldi	r22, 0x00	; 0
+ 12a:	86 e0       	ldi	r24, 0x06	; 6
+ 12c:	0e 94 65 00 	call	0xca	; 0xca <write>
+	write(0x01, 0);
+ 130:	60 e0       	ldi	r22, 0x00	; 0
+ 132:	81 e0       	ldi	r24, 0x01	; 1
+ 134:	0e 94 65 00 	call	0xca	; 0xca <write>
+ 138:	08 95       	ret
+
+0000013a <is_pressed>:
+
+void blinkNtimes(int times) {
+	for(int i = 0; i < times; ++i) {
+		blink();
+	}
+}
+ 13a:	cf 93       	push	r28
+ 13c:	df 93       	push	r29
+ 13e:	14 ba       	out	0x14, r1	; 20
+ 140:	15 ba       	out	0x15, r1	; 21
+ 142:	44 b3       	in	r20, 0x14	; 20
+ 144:	21 e0       	ldi	r18, 0x01	; 1
+ 146:	30 e0       	ldi	r19, 0x00	; 0
+ 148:	f9 01       	movw	r30, r18
+ 14a:	02 c0       	rjmp	.+4      	; 0x150 <is_pressed+0x16>
+ 14c:	ee 0f       	add	r30, r30
+ 14e:	ff 1f       	adc	r31, r31
+ 150:	8a 95       	dec	r24
+ 152:	e2 f7       	brpl	.-8      	; 0x14c <is_pressed+0x12>
+ 154:	cf 01       	movw	r24, r30
+ 156:	84 2b       	or	r24, r20
+ 158:	84 bb       	out	0x14, r24	; 20
+ 15a:	85 b3       	in	r24, 0x15	; 21
+ 15c:	eb 01       	movw	r28, r22
+ 15e:	24 96       	adiw	r28, 0x04	; 4
+ 160:	0c 2e       	mov	r0, r28
+ 162:	02 c0       	rjmp	.+4      	; 0x168 <is_pressed+0x2e>
+ 164:	22 0f       	add	r18, r18
+ 166:	33 1f       	adc	r19, r19
+ 168:	0a 94       	dec	r0
+ 16a:	e2 f7       	brpl	.-8      	; 0x164 <is_pressed+0x2a>
+ 16c:	28 2b       	or	r18, r24
+ 16e:	25 bb       	out	0x15, r18	; 21
+ 170:	81 e0       	ldi	r24, 0x01	; 1
+ 172:	90 e0       	ldi	r25, 0x00	; 0
+ 174:	0e 94 44 00 	call	0x88	; 0x88 <avr_wait>
+ 178:	23 b3       	in	r18, 0x13	; 19
+ 17a:	30 e0       	ldi	r19, 0x00	; 0
+ 17c:	02 c0       	rjmp	.+4      	; 0x182 <is_pressed+0x48>
+ 17e:	35 95       	asr	r19
+ 180:	27 95       	ror	r18
+ 182:	ca 95       	dec	r28
+ 184:	e2 f7       	brpl	.-8      	; 0x17e <is_pressed+0x44>
+ 186:	81 e0       	ldi	r24, 0x01	; 1
+ 188:	90 e0       	ldi	r25, 0x00	; 0
+ 18a:	20 ff       	sbrs	r18, 0
+ 18c:	02 c0       	rjmp	.+4      	; 0x192 <is_pressed+0x58>
+ 18e:	80 e0       	ldi	r24, 0x00	; 0
+ 190:	90 e0       	ldi	r25, 0x00	; 0
+ 192:	df 91       	pop	r29
+ 194:	cf 91       	pop	r28
+ 196:	08 95       	ret
+
+00000198 <get_key>:
+ 198:	0f 93       	push	r16
+ 19a:	1f 93       	push	r17
+ 19c:	cf 93       	push	r28
+ 19e:	df 93       	push	r29
+ 1a0:	00 e0       	ldi	r16, 0x00	; 0
+ 1a2:	10 e0       	ldi	r17, 0x00	; 0
+ 1a4:	18 c0       	rjmp	.+48     	; 0x1d6 <get_key+0x3e>
+ 1a6:	be 01       	movw	r22, r28
+ 1a8:	c8 01       	movw	r24, r16
+ 1aa:	0e 94 9d 00 	call	0x13a	; 0x13a <is_pressed>
+ 1ae:	00 97       	sbiw	r24, 0x00	; 0
+ 1b0:	49 f0       	breq	.+18     	; 0x1c4 <get_key+0x2c>
+ 1b2:	00 0f       	add	r16, r16
+ 1b4:	11 1f       	adc	r17, r17
+ 1b6:	00 0f       	add	r16, r16
+ 1b8:	11 1f       	adc	r17, r17
+ 1ba:	c0 0f       	add	r28, r16
+ 1bc:	d1 1f       	adc	r29, r17
+ 1be:	ce 01       	movw	r24, r28
+ 1c0:	01 96       	adiw	r24, 0x01	; 1
+ 1c2:	0c c0       	rjmp	.+24     	; 0x1dc <get_key+0x44>
+ 1c4:	21 96       	adiw	r28, 0x01	; 1
+ 1c6:	c4 30       	cpi	r28, 0x04	; 4
+ 1c8:	d1 05       	cpc	r29, r1
+ 1ca:	69 f7       	brne	.-38     	; 0x1a6 <get_key+0xe>
+ 1cc:	0f 5f       	subi	r16, 0xFF	; 255
+ 1ce:	1f 4f       	sbci	r17, 0xFF	; 255
+ 1d0:	04 30       	cpi	r16, 0x04	; 4
+ 1d2:	11 05       	cpc	r17, r1
+ 1d4:	19 f0       	breq	.+6      	; 0x1dc <get_key+0x44>
+ 1d6:	c0 e0       	ldi	r28, 0x00	; 0
+ 1d8:	d0 e0       	ldi	r29, 0x00	; 0
+ 1da:	e5 cf       	rjmp	.-54     	; 0x1a6 <get_key+0xe>
+ 1dc:	df 91       	pop	r29
+ 1de:	cf 91       	pop	r28
+ 1e0:	1f 91       	pop	r17
+ 1e2:	0f 91       	pop	r16
+ 1e4:	08 95       	ret
+
+000001e6 <main>:
+	avr_wait(500);
+}
+
+int main(void)
+{
+	avr_init();
+ 1e6:	0e 94 41 00 	call	0x82	; 0x82 <avr_init>
+	lcd_init();
+ 1ea:	0e 94 75 00 	call	0xea	; 0xea <lcd_init>
+	DDRA = 0x01;
+ 1ee:	81 e0       	ldi	r24, 0x01	; 1
+ 1f0:	8a bb       	out	0x1a, r24	; 26
+    while (1) 
+    {
+		int key = get_key() - 1;
+ 1f2:	0e 94 cc 00 	call	0x198	; 0x198 <get_key>
+ 1f6:	01 97       	sbiw	r24, 0x01	; 1
+ 1f8:	80 f0       	brcs	.+32     	; 0x21a <main+0x34>
+		if (key == -1) {
+			// Do Nothing
+		}
+		else if (keypad[key] == '1')
+ 1fa:	fc 01       	movw	r30, r24
+ 1fc:	e0 5a       	subi	r30, 0xA0	; 160
+ 1fe:	ff 4f       	sbci	r31, 0xFF	; 255
+ 200:	80 81       	ld	r24, Z
+ 202:	81 33       	cpi	r24, 0x31	; 49
+ 204:	51 f4       	brne	.+20     	; 0x21a <main+0x34>
+		{
+			SET_BIT(PORTA,0);
+ 206:	d8 9a       	sbi	0x1b, 0	; 27
+			avr_wait(1);
+ 208:	81 e0       	ldi	r24, 0x01	; 1
+ 20a:	90 e0       	ldi	r25, 0x00	; 0
+ 20c:	0e 94 44 00 	call	0x88	; 0x88 <avr_wait>
+			CLR_BIT(PORTA,0);
+ 210:	d8 98       	cbi	0x1b, 0	; 27
+			avr_wait(1);
+ 212:	81 e0       	ldi	r24, 0x01	; 1
+ 214:	90 e0       	ldi	r25, 0x00	; 0
+ 216:	0e 94 44 00 	call	0x88	; 0x88 <avr_wait>
+		}
+		avr_wait(100);
+ 21a:	84 e6       	ldi	r24, 0x64	; 100
+ 21c:	90 e0       	ldi	r25, 0x00	; 0
+ 21e:	0e 94 44 00 	call	0x88	; 0x88 <avr_wait>
+    }
+ 222:	e7 cf       	rjmp	.-50     	; 0x1f2 <main+0xc>
+
+00000224 <_exit>:
+ 224:	f8 94       	cli
+
+00000226 <__stop_program>:
+ 226:	ff cf       	rjmp	.-2      	; 0x226 <__stop_program>
