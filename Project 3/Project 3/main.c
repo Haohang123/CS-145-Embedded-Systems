@@ -7,9 +7,17 @@
 
 #include <avr/io.h>
 #include <stdio.h>
+#include <math.h>
 #include "avr.h"
 #include "lcd.h"
 
+struct Note  {
+	double frequency;
+	double duration;
+};
+
+#define TOTAL_NOTES 12
+struct Note NOTES[TOTAL_NOTES] = {};
 
 char keypad[17] = {
 	'1', '2', '3', 'A',
@@ -63,13 +71,29 @@ void play_song() {
 }
 
 void play_note(int frequency,int duration) {
-	
+	int TH = (1 / frequency) / 2;
+	int TL;
+	for (int i = 0; i < duration; ++i) {
+		SET_BIT(PORTA,0);
+		avr_wait(1);
+		CLR_BIT(PORTA,0);
+		avr_wait(1);
+	}
+}
+
+void notes_init() {
+	int frequency = 220;
+	for (int i = 0; i < TOTAL_NOTES; ++i){
+		NOTES[i].frequency = pow(2.0, (double)i / TOTAL_NOTES ) * frequency;
+		NOTES[i].duration = 5; //(1/NOTES[i].frequency) / 2
+	}
 }
 
 int main(void)
 {
 	avr_init();
 	lcd_init();
+	notes_init();
 	DDRA = 0x01;
     while (1) 
     {
@@ -79,12 +103,9 @@ int main(void)
 		}
 		else if (keypad[key] == '1')
 		{
-			SET_BIT(PORTA,0);
-			avr_wait(1);
-			CLR_BIT(PORTA,0);
-			avr_wait(1);
+			play_note(NOTES[0].frequency, NOTES[0].duration);
 		}
-		avr_wait(100);
+		avr_wait(1);
     }
 }
 
