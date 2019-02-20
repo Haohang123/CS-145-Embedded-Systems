@@ -12,12 +12,18 @@
 #include "lcd.h"
 
 struct Note  {
-	double frequency;
-	double duration;
+	int frequency;
+	int duration;
 };
 
+struct Note MARRY_HAD_A_LITTLE_LAMB[13] = { {7,1}, {5,1}, {3,1}, {5,1}, {7,1}, {7,1}, {7,0}, {5,1}, {5,1} , {5,0}, {7,1} , {10,1}, {10,0} };
+
+int FREQUENCY[12] = {220, 233, 246, 261, 277, 293, 311, 329, 349, 369, 391, 415};
+
 #define TOTAL_NOTES 12
-struct Note NOTES[TOTAL_NOTES] = {};
+//struct Note NOTES[TOTAL_NOTES] = {};
+int DURATION_MODIFIER[3] = {1,2,4};
+int DURATION = 200;
 
 char keypad[17] = {
 	'1', '2', '3', 'A',
@@ -67,45 +73,68 @@ void blink() {
 }
 
 void play_song() {
-	
+	for (int i = 0; i < 13; ++i) {
+		struct Note note = MARRY_HAD_A_LITTLE_LAMB[i];
+		play_note(FREQUENCY[note.frequency] , DURATION / DURATION_MODIFIER[note.duration]);
+	}
 }
 
 void play_note(int frequency,int duration) {
-	int TH = (1 / frequency) / 2;
-	int TL;
+	int TH = (20000.0 / frequency) / 2;
+	int TL= ceil((20000.0 / frequency)) / 2;
+	
+	lcd_clr();
+	char buf[17];
+	sprintf(buf, "F:%03d D:%03d %d", frequency, duration, TH);
+	lcd_puts2(buf);
+	
 	for (int i = 0; i < duration; ++i) {
 		SET_BIT(PORTA,0);
-		avr_wait(1);
+		avr_wait(TH);
 		CLR_BIT(PORTA,0);
-		avr_wait(1);
+		avr_wait(TL);
 	}
 }
 
-void notes_init() {
-	int frequency = 220;
-	for (int i = 0; i < TOTAL_NOTES; ++i){
-		NOTES[i].frequency = pow(2.0, (double)i / TOTAL_NOTES ) * frequency;
-		NOTES[i].duration = 5; //(1/NOTES[i].frequency) / 2
-	}
-}
+//void notes_init() {
+	//int frequency = 220;
+	//for (int i = 0; i < TOTAL_NOTES; ++i){
+		//NOTES[i].frequency = pow(2.0, (double)i / TOTAL_NOTES ) * frequency;
+		//NOTES[i].duration = DURATION; //(1/NOTES[i].frequency) / 2
+	//}
+//}
+
+//void print_note(int key) {
+	//lcd_clr();
+	//char buf[17];
+	//lcd_pos(0,0);
+	//
+	//sprintf(buf, "%02d F:%03d D:%03d", key, NOTES[key].frequency, NOTES[key].duration);
+	//lcd_puts2(buf);
+//}
 
 int main(void)
 {
 	avr_init();
 	lcd_init();
-	notes_init();
+	//notes_init();
 	DDRA = 0x01;
+	int prevkey = -1;
     while (1) 
     {
 		int key = get_key() - 1;
 		if (key == -1) {
 			// Do Nothing
 		}
-		else if (keypad[key] == '1')
+		else
 		{
-			play_note(NOTES[0].frequency, NOTES[0].duration);
+			//if(prevkey != key){
+				//print_note(key);
+				//prevkey = key;
+			//}
+			play_song();
 		}
-		avr_wait(1);
+		//avr_wait(1);
     }
 }
 
