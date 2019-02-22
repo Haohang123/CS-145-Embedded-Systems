@@ -18,12 +18,12 @@ struct Note  {
 
 struct Note MARRY_HAD_A_LITTLE_LAMB[13] = { {7,1}, {5,1}, {3,1}, {5,1}, {7,1}, {7,1}, {7,0}, {5,1}, {5,1} , {5,0}, {7,1} , {10,1}, {10,0} };
 
-int FREQUENCY[12] = {220, 233, 246, 261, 277, 293, 311, 329, 349, 369, 391, 415};
-
 #define TOTAL_NOTES 12
-//struct Note NOTES[TOTAL_NOTES] = {};
+int FREQUENCY[TOTAL_NOTES] = {220, 233, 246, 261, 277, 293, 311, 329, 349, 369, 391, 415};
 int DURATION_MODIFIER[3] = {1,2,4};
 int DURATION = 200;
+int SONG_NOTE = 0;
+float TH_TL_MODIFIER = 1.0;
 
 char keypad[17] = {
 	'1', '2', '3', 'A',
@@ -72,23 +72,25 @@ void blink() {
 	avr_wait(500);
 }
 
-void play_song() {
-	for (int i = 0; i < 13; ++i) {
-		struct Note note = MARRY_HAD_A_LITTLE_LAMB[i];
-		play_note(FREQUENCY[note.frequency] , DURATION / DURATION_MODIFIER[note.duration]);
-	}
-}
-
 void play_note(int frequency,int duration) {
-	int TH = (20000.0 / frequency) / 2;
-	int TL= ceil((20000.0 / frequency)) / 2;
+	int total_time = ceil((20000.0 / frequency));
+	int TH = total_time/2 * TH_TL_MODIFIER;
+	
+	if(TH== total_time) {
+		TH--;
+	}
+	int TL= total_time-TH;
 	
 	lcd_clr();
-	char buf[17];
-	sprintf(buf, "F:%03d D:%03d %d", frequency, duration, TH);
+	char buf[17]; char buf2[17];
+	sprintf(buf, "F:%03d D:%03d  %d", frequency, duration, DURATION);
+	sprintf(buf2, "TH:%d TL:%d, %d", TH, TL, total_time);
 	lcd_puts2(buf);
+	lcd_pos(1,0);
+	lcd_puts2(buf2);
 	
-	for (int i = 0; i < duration; ++i) {
+	int duration_runs = duration*85 / total_time;
+	for (int i = 0; i < duration_runs; ++i) {
 		SET_BIT(PORTA,0);
 		avr_wait(TH);
 		CLR_BIT(PORTA,0);
@@ -96,45 +98,48 @@ void play_note(int frequency,int duration) {
 	}
 }
 
-//void notes_init() {
-	//int frequency = 220;
-	//for (int i = 0; i < TOTAL_NOTES; ++i){
-		//NOTES[i].frequency = pow(2.0, (double)i / TOTAL_NOTES ) * frequency;
-		//NOTES[i].duration = DURATION; //(1/NOTES[i].frequency) / 2
-	//}
-//}
-
-//void print_note(int key) {
-	//lcd_clr();
-	//char buf[17];
-	//lcd_pos(0,0);
-	//
-	//sprintf(buf, "%02d F:%03d D:%03d", key, NOTES[key].frequency, NOTES[key].duration);
-	//lcd_puts2(buf);
-//}
-
 int main(void)
 {
 	avr_init();
 	lcd_init();
-	//notes_init();
 	DDRA = 0x01;
-	int prevkey = -1;
+	SONG_NOTE = 13;
     while (1) 
-    {
+    {	
+		if (SONG_NOTE < 13)
+		{
+			struct Note note = MARRY_HAD_A_LITTLE_LAMB[SONG_NOTE];
+			play_note(FREQUENCY[note.frequency] , DURATION / DURATION_MODIFIER[note.duration]);
+			SONG_NOTE ++;
+		}
+		
 		int key = get_key() - 1;
 		if (key == -1) {
 			// Do Nothing
 		}
-		else
-		{
-			//if(prevkey != key){
-				//print_note(key);
-				//prevkey = key;
-			//}
-			play_song();
+		else if (keypad[key] == '*') {
+			if (TH_TL_MODIFIER > 0.3) {
+				TH_TL_MODIFIER -= .25;
+			}
 		}
-		//avr_wait(1);
+		else if (keypad[key] == '0') {
+			if (TH_TL_MODIFIER < 1.9) {
+				TH_TL_MODIFIER += .25;
+			}
+		}
+		else if (keypad[key] == '#') {
+			if (DURATION >= 20)
+			{
+				DURATION -= 20;
+			}
+		}
+		else if (keypad[key] == 'D') {
+			DURATION += 20;
+		}
+
+		else {
+			SONG_NOTE = 0;
+		}
     }
 }
 
