@@ -11,6 +11,11 @@
 #include "lcd.h"
 
 int TOTAL_SAMPLES = 0;
+int STATE = 0;
+int COUNT = 0;
+float HIGH = 0;
+float LOW = 5.0;
+float TOTAL_IV = 0;
 
 char keypad[17] = {
 	'1', '2', '3', 'A',
@@ -46,35 +51,81 @@ int get_key() {
 	return 0;
 }
 
-void print_lcd() {
-	lcd_clr();
-	char buf[17]; char buf2[17];
-	sprintf(buf, "hello");
-	sprintf(buf2, "");
-	lcd_puts2(buf);
-	lcd_pos(1,0);
-	lcd_puts2(buf2);
+
+void AD_init() {
+	ADMUX=(1<<REFS0);
+	ADCSRA=(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
 }
 
-int get_sample() {
+unsigned int get_AD() {
+	unsigned x;
+	ADMUX |= 0;
+	ADCSRA |= (1<<ADSC) | (1<<ADEN);
+	while(! (ADCSRA & (1<<ADIF) ));
+	ADCSRA |= (1<<ADIF) | (0<<ADEN);
+	x = ADC;
+	return (x);
+}
+
+void reset() {
+	TOTAL_SAMPLES = 0;
+	STATE = 0;
+	COUNT = 0;
+	HIGH = 0;
+	TOTAL_IV = 0;
+}
+
+void print_lcd() {
+	char buf1[16]; char buf2[16];
 	
+	if (STATE == 0) {
+			sprintf(buf1, "IV:---- AV:----");
+			sprintf(buf2, "HI:---- LO:----");
+	}
+	else {
+		sprintf(buf1, "IV:#### AV:####");
+		sprintf(buf2, "HI:%d LOW:%d", HIGH, LOW);
+	}
+	
+	//(int)(1.55), (int)((1.55 - (int)(1.55)) * 100)
+	
+	lcd_clr();
+	lcd_puts2(buf1);
+	lcd_pos(1,0);
+	lcd_puts2(buf2);
 }
 
 int main(void)
 {
 	avr_init();
 	lcd_init();
+	AD_init();
     while (1) 
     {
 		print_lcd();
+		unsigned int iv = get_AD();
+		TOTAL_IV += iv;
+		
+		if (iv > HIGH) {
+			HIGH = iv;
+		}
+		if (iv < LOW) {
+			LOW = iv;
+		}
+		
+		COUNT ++;
 		
 		int key = get_key() - 1;
 		if (key == -1) {
 			// Do Nothing
 		}
-		else if (keypad[key] == '1') {
+		else if (keypad[key] == '1') { // START
+			STATE = 1;
+			
 		}
-		else if (keypad[key] == '2') {
+		else if (keypad[key] == '2') { // RESET
+			STATE = 0;
+		
 		}
 		avr_wait(500);
     }
