@@ -10,12 +10,12 @@
 #include "avr.h"
 #include "lcd.h"
 
-int TOTAL_SAMPLES = 0;
 int STATE = 0;
-int COUNT = 0;
-float HIGH = 0;
-float LOW = 5.0;
-float TOTAL_IV = 0;
+int HIGH = 0;
+int LOW = 10000;
+long TOTAL_IV = 0;
+int CURRENT_IV = 0;
+int TOTAL_SAMPLES = 0;
 
 char keypad[17] = {
 	'1', '2', '3', 'A',
@@ -70,7 +70,6 @@ unsigned int get_AD() {
 void reset() {
 	TOTAL_SAMPLES = 0;
 	STATE = 0;
-	COUNT = 0;
 	HIGH = 0;
 	TOTAL_IV = 0;
 }
@@ -83,8 +82,16 @@ void print_lcd() {
 			sprintf(buf2, "HI:---- LO:----");
 	}
 	else {
-		sprintf(buf1, "IV:#### AV:####");
-		sprintf(buf2, "HI:%d LOW:%d", HIGH, LOW);
+		float high_converted = (float)(HIGH * 5.0/1024);
+		float low_converted = (float)(LOW * 5.0/1024);
+		float avg_converted = (float)(TOTAL_IV / TOTAL_SAMPLES * 5.0/1024);
+		float iv_converted = (float)(CURRENT_IV * 5.0/1024);
+		
+		sprintf(buf1, "IV:%d.%d AV:%d.%d", (int)(iv_converted),  (int)((iv_converted - (int)(iv_converted)) * 100), 
+										   (int)(avg_converted), (int)((avg_converted - (int)(avg_converted)) * 100));
+										   
+		sprintf(buf2, "HI:%d.%d LO:%d.%d", (int)(high_converted), (int)((high_converted - (int)(high_converted)) * 100), 
+										   (int)(low_converted),  (int)((low_converted - (int)(low_converted)) * 100));
 	}
 	
 	//(int)(1.55), (int)((1.55 - (int)(1.55)) * 100)
@@ -97,36 +104,41 @@ void print_lcd() {
 
 int main(void)
 {
+	// MCUCSR |= (1 << JTD);
+	// MCUCSR |= (1 << JTD);
 	avr_init();
 	lcd_init();
 	AD_init();
+	// GICR = 1<<INT2;
+	// sei();
     while (1) 
     {
 		print_lcd();
-		unsigned int iv = get_AD();
-		TOTAL_IV += iv;
+		CURRENT_IV = get_AD();
+		TOTAL_IV += CURRENT_IV;
 		
-		if (iv > HIGH) {
-			HIGH = iv;
+		if (CURRENT_IV > HIGH) {
+			HIGH = CURRENT_IV;
 		}
-		if (iv < LOW) {
-			LOW = iv;
+		if (CURRENT_IV < LOW) {
+			LOW = CURRENT_IV;
 		}
 		
-		COUNT ++;
+		TOTAL_SAMPLES ++;
 		
 		int key = get_key() - 1;
-		if (key == -1) {
-			// Do Nothing
-		}
-		else if (keypad[key] == '1') { // START
-			STATE = 1;
-			
-		}
-		else if (keypad[key] == '2') { // RESET
-			STATE = 0;
-		
-		}
+		STATE = 1;
+		//if (key == -1) {
+			//// Do Nothing
+		//}
+		//else if (keypad[key] == '1') { // START
+			//STATE = 1;
+			//
+		//}
+		//else if (keypad[key] == '2') { // RESET
+			//STATE = 0;
+		//
+		//}
 		avr_wait(500);
     }
 }
