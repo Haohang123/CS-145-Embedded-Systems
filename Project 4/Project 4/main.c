@@ -12,10 +12,18 @@
 
 int STATE = 0;
 int HIGH = 0;
-int LOW = 10000;
+int LOW = 1024;
 long TOTAL_IV = 0;
 int CURRENT_IV = 0;
 int TOTAL_SAMPLES = 0;
+
+float MAX_THRESHOLD = 4.5;
+float MIN_THRESHOLD = 0.5;
+
+#define TOTAL_NOTES 12
+int FREQUENCY[TOTAL_NOTES] = {220, 233, 246, 261, 277, 293, 311, 329, 349, 369, 391, 415};
+int DURATION_MODIFIER[3] = {1,2,4};
+int DURATION = 200;
 
 char keypad[17] = {
 	'1', '2', '3', 'A',
@@ -51,6 +59,24 @@ int get_key() {
 	return 0;
 }
 
+void play_note(int frequency,int duration) {
+	float TH_TL_MODIFIER = 1.0;
+	int total_time = ceil((20000.0 / frequency));
+	int TH = total_time/2 * TH_TL_MODIFIER;
+	
+	if(TH== total_time) {
+		TH--;
+	}
+	int TL= total_time-TH;
+	
+	int duration_runs = duration*85 / total_time;
+	for (int i = 0; i < duration_runs; ++i) {
+		SET_BIT(PORTB,3);
+		avr_wait2(TH);
+		CLR_BIT(PORTB,3);
+		avr_wait2(TL);
+	}
+}
 
 void AD_init() {
 	ADMUX=(1<<REFS0);
@@ -68,10 +94,12 @@ unsigned int get_AD() {
 }
 
 void reset() {
-	TOTAL_SAMPLES = 0;
 	STATE = 0;
 	HIGH = 0;
+	LOW = 1024;
 	TOTAL_IV = 0;
+	CURRENT_IV = 0;
+	TOTAL_SAMPLES = 0;
 }
 
 void print_lcd() {
@@ -87,10 +115,10 @@ void print_lcd() {
 		float avg_converted = (float)(TOTAL_IV / TOTAL_SAMPLES * 5.0/1024);
 		float iv_converted = (float)(CURRENT_IV * 5.0/1024);
 		
-		sprintf(buf1, "IV:%d.%d AV:%d.%d", (int)(iv_converted),  (int)((iv_converted - (int)(iv_converted)) * 100), 
+		sprintf(buf1, "IV:%d.%02d AV:%d.%02d", (int)(iv_converted),  (int)((iv_converted - (int)(iv_converted)) * 100), 
 										   (int)(avg_converted), (int)((avg_converted - (int)(avg_converted)) * 100));
 										   
-		sprintf(buf2, "HI:%d.%d LO:%d.%d", (int)(high_converted), (int)((high_converted - (int)(high_converted)) * 100), 
+		sprintf(buf2, "HI:%d.%02d LO:%d.%02d", (int)(high_converted), (int)((high_converted - (int)(high_converted)) * 100), 
 										   (int)(low_converted),  (int)((low_converted - (int)(low_converted)) * 100));
 	}
 	
@@ -104,41 +132,48 @@ void print_lcd() {
 
 int main(void)
 {
-	// MCUCSR |= (1 << JTD);
-	// MCUCSR |= (1 << JTD);
+	DDRB = 0x08;
 	avr_init();
 	lcd_init();
 	AD_init();
-	// GICR = 1<<INT2;
-	// sei();
     while (1) 
     {
-		print_lcd();
-		CURRENT_IV = get_AD();
-		TOTAL_IV += CURRENT_IV;
-		
-		if (CURRENT_IV > HIGH) {
-			HIGH = CURRENT_IV;
+		if (STATE) {
+			CURRENT_IV = get_AD();
+			TOTAL_IV += CURRENT_IV;
+			
+			if (CURRENT_IV > HIGH) {
+				HIGH = CURRENT_IV;
+			}
+			if (CURRENT_IV < LOW) {
+				LOW = CURRENT_IV;
+			}
+			
+			float current_iv = (float)(CURRENT_IV * 5.0/1024);
+			
+			if (current_iv > MAX_THRESHOLD) {
+				play_note(FREQUENCY[7], DURATION / DURATION_MODIFIER[1]);
+			}
+			else if (current_iv < MIN_THRESHOLD) {
+				play_note(FREQUENCY[7], DURATION / DURATION_MODIFIER[1]);
+			}
+			
+			TOTAL_SAMPLES ++;
 		}
-		if (CURRENT_IV < LOW) {
-			LOW = CURRENT_IV;
-		}
-		
-		TOTAL_SAMPLES ++;
 		
 		int key = get_key() - 1;
-		STATE = 1;
-		//if (key == -1) {
-			//// Do Nothing
-		//}
-		//else if (keypad[key] == '1') { // START
-			//STATE = 1;
-			//
-		//}
-		//else if (keypad[key] == '2') { // RESET
-			//STATE = 0;
-		//
-		//}
+		if (key == -1) {
+			// Do Nothing
+		}
+		else if (keypad[key] == '1') { // START
+			STATE = 1;
+		}
+		else if (keypad[key] == '2') { // RESET
+			reset();
+		
+		}
+		
+		print_lcd();
 		avr_wait(500);
     }
 }
