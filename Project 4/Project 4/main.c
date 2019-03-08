@@ -116,8 +116,10 @@ void print_lcd() {
 	else {
 		int modifier = 1;
 		float total_sum = 0;
-		
-		if (STATE == 2) {
+		if (STATE == 0 || STATE == 1) {
+			
+		}
+		else if (STATE == 2) {
 			modifier = -2;
 			total_sum = MAX_VOLTAGE;
 		} 
